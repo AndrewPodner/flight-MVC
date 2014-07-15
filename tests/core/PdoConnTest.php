@@ -33,7 +33,6 @@ class PdoConnTest extends PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $this->db = null;
-
     }
 
 
@@ -77,7 +76,8 @@ class PdoConnTest extends PHPUnit_Framework_TestCase
      */
     public function testMysqlConnectionAndConnFailure()
     {
-        $config2['db_default']['host'] = 'localhost:8889';
+        $config2['db_default']['host'] = 'localhost';
+        $config2['db_default']['port'] = '8889';
         $config2['db_default']['db_user'] = 'root';
         $config2['db_default']['db_name'] = 'test';
         $config2['db_default']['db_password'] = 'mysql2';
@@ -91,10 +91,42 @@ class PdoConnTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException \Exception
      */
+    public function testPostgresConnectionAndConnFailure()
+    {
+        $config2['db_default']['db_user'] = 'root';
+        $config2['db_default']['db_name'] = 'test';
+        $config2['db_default']['db_password'] = 'mysql2';
+        $config2['db_default']['port'] ='1234';
+        $config2['db_default']['host'] = 'localhost';
+        $config2['db_default']['driver'] = 'pgsql';
+        $conf2 = new Config($config2);
+        $db3 = new PdoConn(array('config'=>$conf2));
+        $db3 = null;
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @expectedException \Exception
+     */
+    public function testPostgresPortConnectionAndConnFailure()
+    {
+        $config2['db_default']['db_user'] = 'root';
+        $config2['db_default']['db_name'] = 'test';
+        $config2['db_default']['port'] = '5444';
+        $config2['db_default']['db_password'] = 'mysql2';
+        $config2['db_default']['driver'] = 'pgsql';
+        $conf2 = new Config($config2);
+        $db3 = new PdoConn(array('config'=>$conf2));
+        $db3 = null;
+    }
+
+
+    /**
+     * @expectedException \Exception
+     */
     public function testSqliteConnectionAndConnFailure()
     {
         $config2['db_default']['db_path'] = null;
-        $config2['db_default']['db_filename'] = 'unit_test.db';
         $config2['db_default']['driver'] = 'sqlite';
         $conf2 = new Config($config2);
         $db3 = new PdoConn(array('config'=>$conf2));
