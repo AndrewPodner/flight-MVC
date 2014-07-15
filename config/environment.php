@@ -22,4 +22,4 @@
 
 // Define the running mode if desired
 // If set to null, the auto-detector will take over
-define('APP_ENVIRONMENT',  null); //null to enable auto-detect of development vs testing mode
+define('APP_ENVIRONMENT', null);
