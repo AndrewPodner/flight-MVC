@@ -1,0 +1,33 @@
+# PACKAGES #
+*.phar
+*.lock
+*.com
+*.dll
+*.exe
+*.o
+*.so
+
+# OS Files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# LOGS / DATABASES #
+*.sqlite
+*.log
+error_log/*
+temp/*
+
+# APP SPECIFIC #
+web/scripts/jquery/*
+libraries/*
+cgi-bin/*
+build.xml
+tests/temp/*
+tests/coverage/*
+web.config
+php.ini

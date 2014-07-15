@@ -1,0 +1,13 @@
+/* TEAM */
+Developer: Andrew Podner
+Twitter: @PHPAndy
+Location: USA
+
+/* THANKS */
+Flight Micro Framework: http://flightphp.com
+Emanuil Rusev: http://erusev.com (Parsedown library)
+
+
+/* SITE */
+Last update: 2014/07/15
+Software: phpStorm
