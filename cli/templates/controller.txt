@@ -1,0 +1,34 @@
+<?php
+/**
+ * File Description:
+ *
+ * @category   controller
+ * @package    application
+ * @author
+ * @copyright  2014
+ * @license    /license.txt
+ *
+ * <created with Flight-MVC CLI>
+ */
+namespace fmvc\application\controller{SUBDIR_NAME};
+
+class {MODEL_NAME} extends \fmvc\core\lib\Controller
+{
+    /**
+     * Constructor: Dependencies are picked up from routes.php  The default
+     * Dependencies sent to the controller are Config and Input, which are then
+     * passed through to the parent constructor
+     * @param array $deps dependencies
+     * @param array $params parameters passed via the uri
+     */
+    public function __construct($deps, $params)
+    {
+        parent::__construct($deps, $params);
+
+    }
+
+    public function index()
+    {
+        echo 'Welcome to the {MODEL_NAME} controller';
+    }
+}

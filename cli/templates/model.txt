@@ -1,0 +1,23 @@
+<?php
+/**
+ * File Description:
+ *
+ *
+ *
+ * @category   application
+ * @package    model
+ * @author
+ * @copyright  2013
+ * @license    /license.txt
+ *
+ * <file created by Flight-MVC CLI>
+ */
+namespace fmvc\application\model{SUBDIR_NAME};
+
+class {MODEL_NAME}
+{
+    public function __construct()
+    {
+
+    }
+}

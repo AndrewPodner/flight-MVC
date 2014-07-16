@@ -2,10 +2,12 @@
 /**
  * File Description:
  *
- * @category
- * @package
+ * Class for managing the environment settings from the CLI
+ *
+ * @category   cli
+ * @package    lib
  * @author     Andrew Podner <andy@unassumingphp.com>
- * @copyright  2013
+ * @copyright  2014
  * @license    /license.txt
  */
 namespace fmvc\cli\lib;
@@ -46,6 +48,10 @@ class Environment
     }
 
 
+    /**
+     * Changes the running environment based on class properties
+     * @return bool
+     */
     public function toggleEnvironment()
     {
         switch ($this->mode)
@@ -81,7 +87,7 @@ class Environment
     {
         $handle = fopen($this->fileName, "w");
         $result = fwrite($handle, $content);
-        if ($result !== strlen($content) || $result === 0 ){
+        if ($result !== strlen($content) || $result === 0) {
             return false;
         } else {
             return true;

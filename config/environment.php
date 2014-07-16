@@ -1,5 +1,5 @@
 <?php
-/**
+;/**
  * File Description:  Config File for setting the application
  * current running mode / environment
  *

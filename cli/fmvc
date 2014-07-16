@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 /**
  * File Description:
@@ -55,15 +56,37 @@ switch ($command)
             if ($result === true) {
                 echo "\r\nSuccess: site is in $param1 mode \r\n";
             } else {
-                echo "\r\nError: environment mode not updated! \r\n";
+                throw new \Exception("ERROR: environment mode not updated! \r\n");
             }
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
         break;
 
+    /**
+     *  Construct a model, view, or controller class file and save it
+     */
+    case 'model':
+    case 'controller':
+    case 'view':
+        try {
+            require_once 'lib/Filegen.php';
+            $mod = new \fmvc\cli\lib\Filegen();
+            $applicationPath = "..".DIRECTORY_SEPARATOR."application".DIRECTORY_SEPARATOR.$command.DIRECTORY_SEPARATOR;
+            $objectName = $param1;
+            $result = $mod->createObject($command, $objectName, $applicationPath);
+            if ($result === true) {
+                echo "New $command created: $objectName\r\n";
+            } else {
+                throw new \Exception('CLI ERROR: File Generation or Creation Error');
+            }
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
 
+        break;
 
-
-
+    default:
+        echo "CLI ERROR: The `$command` command was not found\r\n";
+        break;
 }
