@@ -29,8 +29,7 @@ class Filegen
     public function createObject($objectType, $fileName, $path, $templatePath)
     {
         //Import the contents of the proper text file
-        $string = file_get_contents( "$templatePath$objectType.txt"
-        );
+        $string = file_get_contents("$templatePath$objectType.txt");
 
         // if there is a slash, we need to break this into a subdirectory and file
         // and also deal with putting the namespace another level down
@@ -81,12 +80,11 @@ class Filegen
             mkdir($path . DIRECTORY_SEPARATOR, 0755);
         }
 
-        if(! is_writeable($path)) {
+        if (! is_writeable($path)) {
             throw new \Exception('File Could not be written');
         } else {
             file_put_contents($path . DIRECTORY_SEPARATOR .$name, $contents."\r\n");
             return true;
         }
-
     }
 }
