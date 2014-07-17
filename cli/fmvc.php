@@ -73,8 +73,9 @@ switch ($command)
             require_once 'lib/Filegen.php';
             $mod = new \fmvc\cli\lib\Filegen();
             $applicationPath = "..".DIRECTORY_SEPARATOR."application".DIRECTORY_SEPARATOR.$command.DIRECTORY_SEPARATOR;
+            $templatePath = ".".DIRECTORY_SEPARATOR."templates".DIRECTORY_SEPARATOR;
             $objectName = $param1;
-            $result = $mod->createObject($command, $objectName, $applicationPath);
+            $result = $mod->createObject($command, $objectName, $applicationPath, $templatePath);
             if ($result === true) {
                 echo "New $command created: $objectName\r\n";
             } else {

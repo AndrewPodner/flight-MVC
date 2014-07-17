@@ -21,15 +21,15 @@ class Filegen
      * @param string $objectType the type of object (model, view, controller)
      * @param string $fileName name of the object to be created, will be exploded if it has a `/`
      * @param string $path the location where the object will be created
+     * @param string $templatePath location of templates for objects
      * @return bool
      * @throws \Exception
+     *
      */
-    public function createObject($objectType, $fileName, $path)
+    public function createObject($objectType, $fileName, $path, $templatePath)
     {
         //Import the contents of the proper text file
-        $string = file_get_contents(
-            "." . DIRECTORY_SEPARATOR . "templates"
-            . DIRECTORY_SEPARATOR . $objectType . ".txt"
+        $string = file_get_contents( "$templatePath$objectType.txt"
         );
 
         // if there is a slash, we need to break this into a subdirectory and file
@@ -73,6 +73,7 @@ class Filegen
      * @param string $name the name of the file with extension
      * @param string $contents the contents of the file to be written
      * @return bool
+     * @throws \Exception
      */
     public function createFile($path, $name, $contents)
     {
@@ -80,10 +81,10 @@ class Filegen
             mkdir($path . DIRECTORY_SEPARATOR, 0755);
         }
 
-        $result = file_put_contents($path . DIRECTORY_SEPARATOR .$name, $contents."\r\n");
-        if ($result === false) {
-            return false;
+        if(! is_writeable($path)) {
+            throw new \Exception('File Could not be written');
         } else {
+            file_put_contents($path . DIRECTORY_SEPARATOR .$name, $contents."\r\n");
             return true;
         }
 
