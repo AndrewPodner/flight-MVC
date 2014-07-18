@@ -1,0 +1,18 @@
+<?php
+/**
+ * File Description: {MODEL_NAME} view
+ *
+ * @category   view
+ * @package    {SUBDIR_NAME}
+ * @author
+ * @copyright  2014
+ * @license    /license.txt
+ */
+?>
+<html>
+    <head>
+    </head>
+    <body>
+        <h1>Now fill it with content!</h1>
+    </body>
+</html>
