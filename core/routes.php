@@ -64,6 +64,13 @@ Flight::route('(/@controller(/@command(/@arg1(/@arg2))))', function ($controller
         // Load the controller & call the designated method
         $ctrl = new $fqController($arrDep, $arrParam);
 
+        // If someone tries to call a private or protected controller method...
+        $reflection = new \ReflectionMethod($ctrl, $command);
+        if (! $reflection->isPublic()) {
+            Flight::render('404.php');
+            Flight::stop();
+        }
+
         // Return a 404 error if the command is not valid
         if (! method_exists($fqController, $command)) {
             Flight::render('404.php');
