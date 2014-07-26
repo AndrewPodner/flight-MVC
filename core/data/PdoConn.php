@@ -26,6 +26,13 @@ class PdoConn
      */
     public $config;
 
+    /**
+     * Configuration for the specific database
+     * @var
+     */
+    public $dbConfig;
+
+
 
     /**
      * Constructor, Initializes Dependencies and calls the initialization
@@ -64,6 +71,9 @@ class PdoConn
      */
     public function __call($method, $params)
     {
+        // Load the Connection Configuration
+        $config = $this->dbConfig;
+
         $action = substr($method, 0, 3);
         $retVal = null;
         switch ($action)
@@ -71,7 +81,7 @@ class PdoConn
             // Handler for SELECT Statements that do wildcards with an asterisk
             case 'fil':
                 $arr = explode('By', substr($method, 6));
-                $table = $this->config->item('db_prefix') . $this->camelCaseToUnderscore($arr[0]);
+                $table = $this->camelCaseToUnderscore($arr[0]);
                 $field = $this->camelCaseToUnderscore($arr[1]);
                 $where = $params[0];
                 $retVal = $this->filter($table, $field, $where);
@@ -80,7 +90,7 @@ class PdoConn
             // Handler for SELECT Statements
             case 'get':
                 $arr = explode('By', substr($method, 3));
-                $table = $this->config->item('db_prefix') . $this->camelCaseToUnderscore($arr[0]);
+                $table = $this->camelCaseToUnderscore($arr[0]);
                 $field = $this->camelCaseToUnderscore($arr[1]);
                 $where = $params[0];
                 $retVal = $this->get($table, $field, $where);
@@ -88,13 +98,13 @@ class PdoConn
 
             // Handler for SELECT ALL RECORDS
             case 'all':
-                $table = $this->config->item('db_prefix') . $this->camelCaseToUnderscore(substr($method, 3));
+                $table = $this->camelCaseToUnderscore(substr($method, 3));
                 $retVal = $this->getAll($table);
                 break;
 
             // Handler for INSERT Statements
             case 'ins':
-                $table = $this->config->item('db_prefix') . $this->camelCaseToUnderscore(substr($method, 6));
+                $table = $this->camelCaseToUnderscore(substr($method, 6));
                 $arrInsert = $params[0];
                 $retVal = $this->insert($table, $arrInsert);
                 break;
@@ -102,7 +112,7 @@ class PdoConn
             // Handler for UPDATE Statements
             case 'upd':
                 $arr = explode('By', substr($method, 6));
-                $table = $this->config->item('db_prefix') . $this->camelCaseToUnderscore($arr[0]);
+                $table = $this->camelCaseToUnderscore($arr[0]);
                 $where = array($this->camelCaseToUnderscore($arr[1]) =>  $params[0]);
                 $set = $params[1];
                 $retVal = $this->update($table, $set, $where);
@@ -111,7 +121,7 @@ class PdoConn
             // Handler for DELETE Statements
             case 'del':
                 $arr = explode('By', substr($method, 6));
-                $table = $this->config->item('db_prefix') . $this->camelCaseToUnderscore($arr[0]);
+                $table = $this->camelCaseToUnderscore($arr[0]);
                 $field = $this->camelCaseToUnderscore($arr[1]);
                 $where = $params[0];
                 $retVal = $this->delete($table, array($field => $where));
@@ -141,6 +151,9 @@ class PdoConn
 
         // Load the Connection Configuration
         $config = $this->config->item($strDbName);
+
+        // Put the Connection Info Into a class property
+        $this->dbConfig = $config;
 
         // Build the appropriate connection string
         switch ($config['driver']) {
@@ -213,6 +226,8 @@ class PdoConn
      */
     public function filter($table, $field, $where, $sort = null)
     {
+        $table = $this->dbConfig['db_prefix'] . $table;
+
         if (! stristr($where, '*')) {
             $where .= '%';
         } else {
@@ -245,7 +260,55 @@ class PdoConn
      */
     public function get($table, $field, $where)
     {
+        $table = $this->dbConfig['db_prefix'] . $table;
+
         $stmt = $this->conn->prepare("select * from $table where $field = '$where'");
+        if ($stmt === false) {
+            $err = $this->conn->errorInfo();
+            throw new \PDOException('Query Failure ['.$err[2].']');
+        } else {
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        }
+    }
+
+    /**
+     * Executes a prepared statement via PDO to return a recordset
+     * data returned will be as: $array[0]['field_name']
+     * The where clause for this function uses an in statement
+     *
+     * @param $table
+     * @param $field
+     * @param $where (string containing the in parameters)
+     * @return mixed
+     * @throws \PDOException
+     */
+    public function getIn($table, $field, $where)
+    {
+        $table = $this->dbConfig['db_prefix'] . $table;
+
+        $stmt = $this->conn->prepare("select * from $table where $field in ($where)");
+        if ($stmt === false) {
+            $err = $this->conn->errorInfo();
+            throw new \PDOException('Query Failure ['.$err[2].']');
+        } else {
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        }
+    }
+
+    /**
+     * Executes a prepared statement via PDO to return a recordset
+     * data returned will be as: $array[0]['field_name']
+     * This method accepts any valid sql statement
+     *
+     * @param $sql
+     * @return mixed
+     * @throws \PDOException
+     */
+    public function doSql($sql)
+    {
+        $stmt = $this->conn->prepare($sql);
         if ($stmt === false) {
             $err = $this->conn->errorInfo();
             throw new \PDOException('Query Failure ['.$err[2].']');
@@ -265,6 +328,8 @@ class PdoConn
      */
     public function getAll($table)
     {
+        $table = $this->dbConfig['db_prefix'] . $table;
+
         $stmt = $this->conn->prepare("select * from $table");
         if ($stmt === false) {
             $err = $this->conn->errorInfo();
@@ -286,6 +351,8 @@ class PdoConn
      */
     public function update($table, array $set, array $where)
     {
+        $table = $this->dbConfig['db_prefix'] . $table;
+
         foreach ($set as $fieldName => $value) {
             $arrSet[] = "$fieldName = '$value'";
         }
@@ -310,6 +377,8 @@ class PdoConn
      */
     public function insert($table, array $arrInsert)
     {
+        $table = $this->dbConfig['db_prefix'] . $table;
+
         // Build the Fields and Values part of the insert statement
         foreach ($arrInsert as $fieldName => $value) {
             $fields[] = $fieldName;
@@ -344,6 +413,8 @@ class PdoConn
      */
     public function delete($table, array $where)
     {
+        $table = $this->dbConfig['db_prefix'] . $table;
+
         $sql = "DELETE FROM $table WHERE " . key($where) . "='" .current($where). "'";
         $stmt = $this->conn->prepare($sql);
         if ($stmt === false) {

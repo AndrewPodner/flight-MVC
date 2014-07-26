@@ -24,7 +24,7 @@ class PdoConnTest extends PHPUnit_Framework_TestCase
         $config['db_default']['db_path'] = '../data/sqlite';
         $config['db_default']['db_filename'] = 'unit_test.db';
         $config['db_default']['driver'] = 'sqlite';
-        $config['db_prefix'] = '';
+        $config['db_default']['db_prefix'] = '';
         $this->conf = new Config($config);
 
         $this->db = new PdoConn(array('config' => $this->conf));
@@ -294,5 +294,33 @@ class PdoConnTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $ret);
     }
 
+    public function testGetIn()
+    {
+        $rs = $this->db->getIn('companies', 'id', '1');
+        $this->assertArrayHasKey('abbr', $rs[0]);
+    }
 
+    /**
+     * @expectedException \PDOException
+     */
+    public function testGetInFail()
+    {
+        $rs = $this->db->getIn('company', 'id', '100');
+        $this->assertArrayHasKey('abbr', $rs[0]);
+    }
+
+    public function testDoSql()
+    {
+        $rs = $this->db->doSql("SELECT * FROM companies WHERE id = 1");
+        $this->assertArrayHasKey('abbr', $rs[0]);
+    }
+
+    /**
+     * @expectedException \PDOException
+     */
+    public function testDoSqlFail()
+    {
+        $rs = $this->db->doSql('SELECT * FROM company where id = 1');
+        $this->assertArrayHasKey('abbr', $rs[0]);
+    }
 }
