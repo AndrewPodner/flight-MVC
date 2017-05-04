@@ -33,3 +33,7 @@ $config['db_prefix'] = '';
 
 // PATH FOR ERROR LOG
 $config['error_log_path'] = 'error_log/';
+
+// USE WINDOWS AUTHENTICATION
+$config['use_windows_auth'] = false;
+$config['auth_domain'] = 'MYDOMAIN\\'; //use this to strip the domain name from a windows user name

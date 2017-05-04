@@ -21,6 +21,24 @@
 Flight::map('notFound', function () {
     Flight::render('404.php');
 });
+//Use Windows Authentication to assure that there is
+//a legitimate user logged into the browser.  App depends on Windows Auth via IIS
+//If we find an AUTH_USER in the IE Server Variable, set it as a configuration item
+//If not, render a 401 error
+
+if (Flight::config()->item('use_windows_auth') == true) {
+    if (!isset(Flight::input()->server['AUTH_USER'])
+        or is_null(Flight::input()->server['AUTH_USER'])
+        or Flight::input()->server['AUTH_USER'] == '') {
+        Flight::render('401.php');
+        Flight::stop();
+    } else {
+        $t_user = strtoupper(str_replace(Flight::config()->item('auth_domain'), '', Flight::input()->server['AUTH_USER']));
+        Flight::config()->set('auth_user', $t_user);
+        //process any additional user authentication here (e.g. load your user class
+
+    }
+}
 
 // Set up a route handler for Application Controllers
 // Route accepts a controller, command and 2 arguments
@@ -52,7 +70,7 @@ Flight::route('(/@controller(/@command(/@arg1(/@arg2))))', function ($controller
         $arrDep = array(
             'config' => Flight::config(),
             'input' => Flight::input(),
-            'head' => FLight::head()
+            'head' => Flight::head()
         );
 
         // Check for the controller, if it doesn't exist, go to 404

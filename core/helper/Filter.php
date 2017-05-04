@@ -167,9 +167,6 @@ class Filter
             return false;
         }
 
-        $yr = substr(intval($parts[2]), -2)  ;
-        $curr_yr = substr(intval(date('y', time())), -2);
-
         return checkdate($parts[0], $parts[1], $parts[2]);
     }
 }

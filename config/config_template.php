@@ -40,3 +40,6 @@ $config['db_prefix'] = ""; //this is a prefix for table names in the database
 // PATH FOR ERROR LOG
 $config['error_log_path'] = 'error_log/';
 
+// USE WINDOWS AUTHENTICATION
+$config['use_windows_auth'] = false;
+$config['auth_domain'] = 'MYDOMAIN\\'; //use this to strip the domain name from a windows user name

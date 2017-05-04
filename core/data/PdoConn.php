@@ -71,9 +71,6 @@ class PdoConn
      */
     public function __call($method, $params)
     {
-        // Load the Connection Configuration
-        $config = $this->dbConfig;
-
         $action = substr($method, 0, 3);
         $retVal = null;
         switch ($action)

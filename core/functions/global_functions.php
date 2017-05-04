@@ -47,7 +47,6 @@ if (! function_exists('setEnvironment')) {
         $arrVars = array(
             $_SERVER['HTTP_HOST'],
             $_SERVER['SERVER_NAME'],
-            $_SERVER['SERVER_ADDR'],
             $_SERVER['REMOTE_ADDR']
         );
 
@@ -60,8 +59,8 @@ if (! function_exists('setEnvironment')) {
 
         if (is_null($mode)) {
             echo array_search($arrLocal, $arrVars);
-            foreach ($arrVars as $key => $value) {
-                foreach ($arrLocal as $srchKey => $srchValue) {
+            foreach ($arrVars as $value) {
+                foreach ($arrLocal as $srchValue) {
                     if (stristr($value, $srchValue)) {
                         return 'development';
                     }

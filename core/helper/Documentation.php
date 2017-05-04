@@ -39,7 +39,7 @@ class Documentation
     {
         $output = array();
         $dirList = scandir($this->dirName);
-        foreach ($dirList as $key => $file) {
+        foreach ($dirList as $file) {
             if (stristr($file, '.md')) {
                 $output[] = $file;
             }
