@@ -85,8 +85,10 @@ class Input
             $this->cookie = array_merge($this->cookie, $_COOKIE);
         }
 
-        if (is_array($_SESSION)) {
+        if (session_status() === PHP_SESSION_ACTIVE) {
             $this->session = array_merge($this->session, $_SESSION);
+        } else {
+            unset($this->session);
         }
 
         return $this;

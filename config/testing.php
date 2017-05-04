@@ -8,6 +8,8 @@
  * @copyright  2013
  * @license    /license.txt
  */
+//Turn Sessions On or Off
+define('SESSIONS_ENABLED', true);
 
 // DEFAULT SITE TITLE
 $config['default_title'] = "Flight-MVC Default Title";

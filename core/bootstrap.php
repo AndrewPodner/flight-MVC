@@ -13,7 +13,11 @@
  * @license    /license.txt
  */
 // Initialize a PHP Session
-session_start();
+if (SESSIONS_ENABLED === true) {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+}
 
 // Set up the Views Directory
 Flight::set('flight.views.path', 'application/view');
