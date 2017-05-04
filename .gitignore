@@ -15,6 +15,7 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+.idea/*
 
 # LOGS / DATABASES #
 *.sqlite

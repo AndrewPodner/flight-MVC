@@ -22,7 +22,6 @@ class Home extends \fmvc\core\lib\Controller
     public function __construct($deps, $params)
     {
         parent::__construct($deps, $params);
-
     }
 
     /**

@@ -23,7 +23,6 @@ class Doc extends \fmvc\core\lib\Controller
         $this->doc = new \fmvc\core\helper\Documentation();
         $this->head->style(array('docs'));
         $this->head->title('FlightMVC Documentation Viewer');
-
     }
 
     public function index()
