@@ -29,11 +29,11 @@ $config['db_default']['db_name'] = ''; //use for mysql/pgsql driver
 
 
 //SQLite specific settings
-$config['db_default']['db_path'] = null; // use full path to file (if null, default dir is `/data/sqlite`
+$config['db_default']['db_path'] = './data/sqlite'; // required field
 $config['db_default']['db_filename'] = '';
 
 // DATABASE SETTINGS
-$config['db_prefix'] = ""; //this is a prefix for table names in the database
+$config['db_default']['db_prefix'] = ""; //this is a prefix for table names in the database
 
 // PATH FOR ERROR LOG
 $config['error_log_path'] = 'error_log/';

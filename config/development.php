@@ -28,11 +28,11 @@ $config['db_default']['port'] = '';  //use for mysql/pgsql driver
 $config['db_default']['db_name'] = ''; //use for mysql/pgsql driver
 
 //SQLite specific settings (directory and file must be writeable)
-$config['db_default']['db_path'] = null; // use full path to file (if null, default dir is `/data/sqlite`
+$config['db_default']['db_path'] = './data/sqlite'; // required field
 $config['db_default']['db_filename'] = 'unit_test.db';
 
 // DATABASE TABLE SETTINGS
-$config['db_prefix'] = '';
+$config['db_default']['db_prefix'] = '';
 
 // PATH FOR ERROR LOG
 $config['error_log_path'] = 'error_log/';

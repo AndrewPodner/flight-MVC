@@ -139,66 +139,17 @@ class PdoConn
      */
     public function init($dbname = null)
     {
-        // Set the connection name or use default
-        if (is_null($dbname)) {
-            $strDbName = 'db_default';
-        } else {
-            $strDbName = 'db_' . $dbname;
-        }
+        $dbname = $this->setDbName($dbname);
 
         // Load the Connection Configuration
-        $config = $this->config->item($strDbName);
+        $config = $this->config->item($dbname);
 
         // Put the Connection Info Into a class property
         $this->dbConfig = $config;
 
         // Build the appropriate connection string
-        switch ($config['driver']) {
+        $connStr = $this->createConnectionString($config);
 
-            // Connection String for MySQL
-            case 'mysql':
-                $connStr = $config['driver'] . ":host=" . $config['host'] . ";dbname=" . $config['db_name'];
-                if (! is_null($config['port']) && $config['port'] !== '') {
-                    $connStr .= ";port=" . $config['port'];
-                }
-                break;
-
-            // Connection String for SQL Server 2005 and higher
-            case 'sqlsrv':
-                $connStr = $config['driver'] . ":" . $config['dsn'];
-                break;
-
-            // Connection String for ODBC connections
-            case 'odbc':
-                $connStr = $config['driver'] . ":" . $config['dsn'] .";Uid=" . $config['db_user']
-                    . ";Pwd=" . $config['db_password'];
-                break;
-
-            // Connection String for SQLite
-            case 'sqlite':
-                // Set the user & password to blank if there is no config variable set
-                if (! isset ($config['db_user'])) {
-                    $config['db_user'] = '';
-                    $config['db_password'] = '';
-                }
-
-                //assume the default path if a configured path is not provided
-                if (is_null($config['db_path'])) {
-                    $path = './data/sqlite';
-                } else {
-                    $path = rtrim($config['db_path'], '/');
-                }
-
-                $connStr = $config['driver'] . ":" . $path . "/" . $config['db_filename'];
-                break;
-
-            case 'pgsql':
-                $connStr = $config['driver'] . ":dbname=" . $config['db_name'] . ";host=" . $config['host'];
-                if (! is_null($config['port']) && $config['port'] !== '') {
-                    $connStr .= ";port=" . $config['port'];
-                }
-                break;
-        }
         // Establish a PDO connection or terminate application
         try {
             $this->conn = new \PDO($connStr, $config['db_user'], $config['db_password']);
@@ -259,7 +210,9 @@ class PdoConn
     {
         $table = $this->dbConfig['db_prefix'] . $table;
 
-        $stmt = $this->conn->prepare("select * from $table where $field = '$where'");
+        $stmt = $this->conn->prepare("select * from $table where $field = ?");
+        $stmt->bindParam(1, $where);
+
         if ($stmt === false) {
             $err = $this->conn->errorInfo();
             throw new \PDOException('Query Failure ['.$err[2].']');
@@ -350,12 +303,23 @@ class PdoConn
     {
         $table = $this->dbConfig['db_prefix'] . $table;
 
+        $i=1;
         foreach ($set as $fieldName => $value) {
-            $arrSet[] = "$fieldName = '$value'";
+            $arrSet[$i] = "$fieldName = ?";
+            $param[$i] = $value;
+            $i++;
         }
         $strSet = implode(',', $arrSet);
-        $sql = "UPDATE $table SET $strSet WHERE " . key($where) . " = '" .current($where). "'";
-        $stmt = $this->conn->prepare($sql);
+        $whereValue = current($where);
+
+        $stmt = $this->conn->prepare('UPDATE '. $table .' SET ' . $strSet . ' WHERE ' . key($where) . ' = ?');
+
+        foreach ($param as $paramNo => &$value) {
+            $stmt->bindParam($paramNo, $value);
+        }
+        $p = count($param);
+        $stmt->bindParam($p+1, $whereValue);
+
         if ($stmt === false) {
             $err = $this->conn->errorInfo();
             throw new \PDOException('Query Failure ['.$err[2].']');
@@ -377,16 +341,21 @@ class PdoConn
         $table = $this->dbConfig['db_prefix'] . $table;
 
         // Build the Fields and Values part of the insert statement
+        $i=1;
         foreach ($arrInsert as $fieldName => $value) {
             $fields[] = $fieldName;
-            $values[] = "'".$value."'";
+            $values[$i] = $value;
+            $param[$i] = '?';
+            $i++;
         }
         $strFields = implode(',', $fields);
-        $strValues = implode(',', $values);
+        $strValues = implode(',', $param);
 
         // Prepare the sql statement
-        $sql = "INSERT INTO $table ($strFields) VALUES ($strValues)";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare('INSERT INTO '.$table.' ('.$strFields.') VALUES ('.$strValues.')');
+        foreach ($values as $paramNo => &$val) {
+           $stmt->bindParam($paramNo, $val);
+        }
 
         // Execute or throw exception on failure
         if ($stmt === false) {
@@ -411,9 +380,12 @@ class PdoConn
     public function delete($table, array $where)
     {
         $table = $this->dbConfig['db_prefix'] . $table;
+        $whereValue = current($where);
 
-        $sql = "DELETE FROM $table WHERE " . key($where) . "='" .current($where). "'";
+        $sql = "DELETE FROM $table WHERE " . key($where) . "= ? ";
         $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(1, $whereValue);
+
         if ($stmt === false) {
             $err = $this->conn->errorInfo();
             throw new \PDOException('Query Failure ['.$err[2].']');
@@ -434,6 +406,71 @@ class PdoConn
     public function camelCaseToUnderscore($string)
     {
         return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $string));
+    }
+
+    /**
+     * Builds a connection string based on the database configuration
+     * @param array $config
+     * @return string
+     */
+    protected function createConnectionString(array $config)
+    {
+        // Build the appropriate connection string
+        switch ($config['driver']) {
+
+            // Connection String for MySQL
+            case 'mysql':
+                $connStr = $config['driver'] . ":host=" . $config['host'] . ";dbname=" . $config['db_name'];
+                if ( $config['port'] !== '') {
+                    $connStr .= ";port=" . $config['port'];
+                }
+                break;
+
+            // Connection String for SQL Server 2005 and higher
+            case 'sqlsrv':
+                $connStr = $config['driver'] . ":" . $config['dsn'];
+                break;
+
+            // Connection String for ODBC connections
+            case 'odbc':
+                $connStr = $config['driver'] . ":" . $config['dsn'] .";Uid=" . $config['db_user']
+                    . ";Pwd=" . $config['db_password'];
+                break;
+
+            // Connection String for SQLite
+            case 'sqlite':
+                // Set the user & password to blank if there is no config variable set
+                if (! isset ($config['db_user'])) {
+                    $config['db_user'] = '';
+                    $config['db_password'] = '';
+                }
+                $connStr = $config['driver'] . ":" . $config['db_path'] . "/" . $config['db_filename'];
+                break;
+
+            case 'pgsql':
+                $connStr = $config['driver'] . ":dbname=" . $config['db_name'] . ";host=" . $config['host'];
+                if ($config['port'] !== '') {
+                    $connStr .= ";port=" . $config['port'];
+                }
+                break;
+        }
+        return $connStr;
+    }
+
+    /**
+     * Sets the database connection name or default if null
+     *
+     * @param null $dbname
+     * @return string
+     */
+    protected function setDbName($dbname = null)
+    {
+        if (is_null($dbname)) {
+            $strDbName = 'db_default';
+        } else {
+            $strDbName = 'db_' . $dbname;
+        }
+        return $strDbName;
     }
 
     /**
